@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace APBD_Final_Project.Entities;
 
-[Table("Clients")]
+[Table("Client")]
 public class Client
 {
     [Key]
@@ -29,4 +30,7 @@ public class Client
     
     public IndividualClient IndividualClient { get; set; } = null!;
     public CorporateClient CorporateClient { get; set; } = null!;
+
+    public ICollection<Contract> Contracts { get; set; } = null!;
+    public ICollection<Invoice> Invoices { get; set; } = null!;
 }
