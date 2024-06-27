@@ -33,10 +33,10 @@ public class Contract
     
     [Column("EndDate")]
     public DateTime EndDate { get; set; }
-    
-    [Column("SoftWareUpdatesInfo")]
-    [MaxLength(1000)]
-    public string SoftWareUpdatesInfo { get; set; }
+
+    [Column("SupportPeriodYears")]
+    [Range(1, 4)]
+    public int SupportPeriodYears { get; set; } = 1;
     
     [Column("PaymentSettlementDate")]
     public DateTime? PaymentSettlementDate { get; set; }

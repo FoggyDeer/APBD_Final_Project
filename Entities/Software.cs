@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace APBD_Final_Project.Entities;
 
@@ -29,7 +30,9 @@ public class Software
     [Column("Category")]
     public Category Category { get; set; }
     
+    public Price Price { get; set; } = null!;
     public ICollection<Discount> Discounts { get; set; } = null!;
+    
     public ICollection<Contract> Contracts { get; set; } = null!;
 }
 

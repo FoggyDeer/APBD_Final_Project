@@ -13,6 +13,7 @@ public class ApplicationContext : DbContext
     public DbSet<Entities.Discount> Discounts { get; set; }
     public DbSet<Entities.Invoice> Invoices { get; set; }
     public DbSet<Entities.User> Users { get; set; }
+    public DbSet<Entities.Price> Prices { get; set; }
     
     ApplicationContext()
     {

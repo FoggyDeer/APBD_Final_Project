@@ -36,7 +36,7 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
 
         if(individualClient == null)
         {
-             throw new Exceptions.ClientsException.Individual.NotFoundException(clientId);
+             throw new Exceptions.ClientsException.Individual.IndividualClientNotFoundException(clientId);
         }
         
         return new IndividualClientResponseModel
@@ -62,7 +62,7 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
         
         if(individualClient == null)
         {
-            throw new Exceptions.ClientsException.Individual.NotFoundException(clientId);
+            throw new Exceptions.ClientsException.Individual.IndividualClientNotFoundException(clientId);
         }
     }
 
@@ -87,7 +87,7 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
         
         if(corporateClient == null)
         {
-            throw new Exceptions.ClientsException.Corporate.NotFoundException(clientId);
+            throw new Exceptions.ClientsException.Corporate.CorporateClientNotFoundException(clientId);
         }
         
         return new CorporateClientResponseModel

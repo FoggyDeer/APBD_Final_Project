@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using APBD_Final_Project.Exceptions.ClientsException.Corporate;
 using APBD_Final_Project.Exceptions.ClientsException.Individual;
 using APBD_Final_Project.Models.ClientModels;
@@ -20,7 +21,7 @@ public class ClientsController(IClientsService clientsService) : ControllerBase
     public async Task<IActionResult> AddIndividualClient(CreateIndividualClientRequestModel requestModel)
     {
         var sub = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if(sub == null)
+        if(sub == null || Regex.IsMatch(sub, @"\D"))
         {
             return Unauthorized();
         }
@@ -46,7 +47,7 @@ public class ClientsController(IClientsService clientsService) : ControllerBase
         {
             return Ok(await clientsService.UpdateIndividualClient(requestModel, clientId));
         }
-        catch (Exceptions.ClientsException.Individual.NotFoundException e)
+        catch (IndividualClientNotFoundException e)
         {
             return NotFound(e.Message);
         }
@@ -62,7 +63,7 @@ public class ClientsController(IClientsService clientsService) : ControllerBase
             await clientsService.DeleteIndividualClient(clientId);
             return Ok();
         }
-        catch (Exceptions.ClientsException.Individual.NotFoundException e)
+        catch (IndividualClientNotFoundException e)
         {
             return NotFound(e.Message);
         }
@@ -73,7 +74,7 @@ public class ClientsController(IClientsService clientsService) : ControllerBase
     public async Task<IActionResult> AddCorporateClient(CreateCorporateClientRequestModel requestModel)
     {
         var sub = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if(sub == null)
+        if(sub == null || Regex.IsMatch(sub, @"\D"))
         {
             return Unauthorized();
         }
@@ -100,7 +101,7 @@ public class ClientsController(IClientsService clientsService) : ControllerBase
         {
             return Ok(await clientsService.UpdateCorporateClient(requestModel, clientId));
         }
-        catch (Exceptions.ClientsException.Corporate.NotFoundException e)
+        catch (CorporateClientNotFoundException e)
         {
             return NotFound(e.Message);
         }

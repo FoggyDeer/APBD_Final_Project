@@ -42,10 +42,12 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
-builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
-builder.Services.AddScoped<IClientsService, ClientsService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
+builder.Services.AddScoped<IClientsService, ClientsService>();
+builder.Services.AddScoped<IContractsRepository, ContractsRepository>();
+builder.Services.AddScoped<IContractsService, ContractsService>();
 builder.Services.AddControllers();
 
 builder.Services.AddDbContext<ApplicationContext>(opt =>
