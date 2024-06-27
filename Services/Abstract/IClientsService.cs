@@ -5,13 +5,13 @@ namespace APBD_Final_Project.Services.Abstract;
 
 public interface IClientsService
 {
-    Task AddIndividualClient(CreateIndividualClientRequestModel requestModel);
+    Task AddIndividualClient(int userId, CreateIndividualClientRequestModel requestModel);
     
     Task<IndividualClientResponseModel> UpdateIndividualClient(UpdateIndividualClientRequestModel requestModel, int clientId);
     
     Task DeleteIndividualClient(int clientId);
     
-    Task AddCorporateClient(CreateCorporateClientRequestModel requestModel);
+    Task AddCorporateClient(int userId, CreateCorporateClientRequestModel requestModel);
     
     Task<CorporateClientResponseModel> UpdateCorporateClient(UpdateCorporateClientRequestModel requestModel, int clientId);
 }

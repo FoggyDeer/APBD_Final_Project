@@ -8,9 +8,10 @@ public interface IClientsRepository
     Task<bool> IsIndividualClientDeleted(int clientId);
     Task<bool> IsPeselValid(string pesel);
     Task<bool> IsKrsValid(string krs);
-    Task AddIndividualClient(CreateIndividualClientRequestModel requestModel);
+    Task<bool> DoesClientExists(int clientId);
+    Task AddIndividualClient(int userId, CreateIndividualClientRequestModel requestModel);
     Task<IndividualClient?> UpdateIndividualClient(UpdateIndividualClientRequestModel requestModel, int clientId);
     Task<IndividualClient?> DeleteIndividualClient(int clientId);
-    Task AddCorporateClient(CreateCorporateClientRequestModel requestModel);
+    Task AddCorporateClient(int userId, CreateCorporateClientRequestModel requestModel);
     Task<CorporateClient?> UpdateCorporateClient(UpdateCorporateClientRequestModel requestModel, int clientId);
 }

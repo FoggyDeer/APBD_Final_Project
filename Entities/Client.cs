@@ -8,8 +8,11 @@ namespace APBD_Final_Project.Entities;
 public class Client
 {
     [Key]
+    [ForeignKey("User")]
     [Column("ClientId")]
     public int ClientId { get; set; }
+    
+    public User User { get; set; } = null!;
 
     [Required]
     [Column("Address")]

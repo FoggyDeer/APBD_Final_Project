@@ -10,14 +10,19 @@ namespace APBD_Final_Project.Services;
 
 public class ClientsService(IClientsRepository clientsRepository) : IClientsService
 {
-    public async Task AddIndividualClient(CreateIndividualClientRequestModel requestModel)
+    public async Task AddIndividualClient(int userId, CreateIndividualClientRequestModel requestModel)
     {
+        if(await clientsRepository.DoesClientExists(userId))
+        {
+            throw new ClientExistsException();
+        }
+        
         if(!await clientsRepository.IsPeselValid(requestModel.Pesel))
         {
             throw new PeselIsNotValidException(requestModel.Pesel);
         }
         
-        await clientsRepository.AddIndividualClient(requestModel);
+        await clientsRepository.AddIndividualClient(userId, requestModel);
     }
 
     public async Task<IndividualClientResponseModel> UpdateIndividualClient(UpdateIndividualClientRequestModel requestModel, int clientId)
@@ -61,14 +66,19 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
         }
     }
 
-    public async Task AddCorporateClient(CreateCorporateClientRequestModel requestModel)
+    public async Task AddCorporateClient(int userId, CreateCorporateClientRequestModel requestModel)
     {
+        if(await clientsRepository.DoesClientExists(userId))
+        {
+            throw new ClientExistsException();
+        }
+        
         if(!await clientsRepository.IsKrsValid(requestModel.KRS))
         {
             throw new KrsIsNotValidException(requestModel.KRS);
         }
         
-        await clientsRepository.AddCorporateClient(requestModel);
+        await clientsRepository.AddCorporateClient(userId, requestModel);
     }
 
     public async Task<CorporateClientResponseModel> UpdateCorporateClient(UpdateCorporateClientRequestModel requestModel, int clientId)

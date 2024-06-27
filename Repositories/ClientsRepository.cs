@@ -31,11 +31,20 @@ public class ClientsRepository(ApplicationContext context) : IClientsRepository
         
         return client == null;
     }
+    
+    public async Task<bool> DoesClientExists(int clientId)
+    {
+        Client? client = await context.Clients
+            .FirstOrDefaultAsync(c => c.ClientId == clientId);
+        
+        return client != null;
+    }
 
-    public async Task AddIndividualClient(CreateIndividualClientRequestModel requestModel)
+    public async Task AddIndividualClient(int userId, CreateIndividualClientRequestModel requestModel)
     {
         Client client = new Client
         {
+            ClientId = userId,
             Address = requestModel.Address,
             Email = requestModel.Email,
             PhoneNumber = requestModel.PhoneNumber,
@@ -89,10 +98,11 @@ public class ClientsRepository(ApplicationContext context) : IClientsRepository
         return individualClient;
     }
 
-    public async Task AddCorporateClient(CreateCorporateClientRequestModel requestModel)
+    public async Task AddCorporateClient(int userId, CreateCorporateClientRequestModel requestModel)
     {
         Client client = new Client
         {
+            ClientId = userId,
             Address = requestModel.Address,
             Email = requestModel.Email,
             PhoneNumber = requestModel.PhoneNumber,
