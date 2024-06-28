@@ -1,5 +1,6 @@
 
 using APBD_Final_Project.Entities;
+using APBD_Final_Project.Exceptions.ClientsException;
 using APBD_Final_Project.Exceptions.ClientsException.Corporate;
 using APBD_Final_Project.Exceptions.ClientsException.Individual;
 using APBD_Final_Project.Models.ClientModels;
@@ -8,13 +9,13 @@ using APBD_Final_Project.Services.Abstract;
 
 namespace APBD_Final_Project.Services;
 
-public class ClientsService(IClientsRepository clientsRepository) : IClientsService
+public class ClientsService(IClientsRepository clientsRepository, IAccountStatusRepository accountStatusRepository) : IClientsService
 {
     public async Task AddIndividualClient(int userId, CreateIndividualClientRequestModel requestModel)
     {
         if(await clientsRepository.DoesClientExists(userId))
         {
-            throw new ClientExistsException();
+            throw new UserAlreadyClientException();
         }
         
         if(!await clientsRepository.IsPeselValid(requestModel.Pesel))
@@ -27,7 +28,7 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
 
     public async Task<IndividualClientResponseModel> UpdateIndividualClient(UpdateIndividualClientRequestModel requestModel, int clientId)
     {
-        if(await clientsRepository.IsIndividualClientDeleted(clientId))
+        if(await accountStatusRepository.IsIndividualClientDeleted(clientId))
         {
             throw new ClientDeletedException(clientId);
         }
@@ -36,7 +37,7 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
 
         if(individualClient == null)
         {
-             throw new Exceptions.ClientsException.Individual.IndividualClientNotFoundException(clientId);
+             throw new IndividualClientNotFoundException(clientId);
         }
         
         return new IndividualClientResponseModel
@@ -53,7 +54,7 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
 
     public async Task DeleteIndividualClient(int clientId)
     {
-        if(await clientsRepository.IsIndividualClientDeleted(clientId))
+        if(await accountStatusRepository.IsIndividualClientDeleted(clientId))
         {
             throw new ClientDeletedException(clientId);
         }
@@ -62,7 +63,7 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
         
         if(individualClient == null)
         {
-            throw new Exceptions.ClientsException.Individual.IndividualClientNotFoundException(clientId);
+            throw new IndividualClientNotFoundException(clientId);
         }
     }
 
@@ -70,7 +71,7 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
     {
         if(await clientsRepository.DoesClientExists(userId))
         {
-            throw new ClientExistsException();
+            throw new UserAlreadyClientException();
         }
         
         if(!await clientsRepository.IsKrsValid(requestModel.KRS))
@@ -87,7 +88,7 @@ public class ClientsService(IClientsRepository clientsRepository) : IClientsServ
         
         if(corporateClient == null)
         {
-            throw new Exceptions.ClientsException.Corporate.CorporateClientNotFoundException(clientId);
+            throw new CorporateClientNotFoundException(clientId);
         }
         
         return new CorporateClientResponseModel

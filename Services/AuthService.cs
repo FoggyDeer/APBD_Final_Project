@@ -1,5 +1,6 @@
 using APBD_Final_Project.Entities;
 using APBD_Final_Project.Exceptions.AuthExceptions;
+using APBD_Final_Project.Exceptions.ClientsException.Individual;
 using APBD_Final_Project.Repositories.Abstract;
 using APBD_Final_Project.Services.Abstract;
 namespace APBD_Final_Project.Services;
@@ -12,7 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 
-public class AuthService(IAuthRepository repository, IConfiguration config) : IAuthService
+public class AuthService(IAuthRepository repository, IAccountStatusRepository accountStatusRepository, IConfiguration config) : IAuthService
 {
     public async Task<LoginResponseModel> Login(LoginRequestModel model)
     {
@@ -20,6 +21,9 @@ public class AuthService(IAuthRepository repository, IConfiguration config) : IA
         if (user == null)
             throw new UnauthorizedException();
 
+        if (await accountStatusRepository.IsIndividualClientDeleted(user.UserId))
+            throw new ClientDeletedException(ClientDeletedException.SelfMessage);
+        
         var passwordHasher = new PasswordHasher<User>();
         var passwordIsCorrect = passwordHasher.VerifyHashedPassword(user, user.Password, model.Password) == PasswordVerificationResult.Success;
         if(!passwordIsCorrect)

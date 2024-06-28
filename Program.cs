@@ -1,5 +1,6 @@
 using System.Text;
 using APBD_Final_Project.DbContexts;
+using APBD_Final_Project.DbContexts.Abstract;
 using APBD_Final_Project.Middlewares;
 using APBD_Final_Project.Repositories;
 using APBD_Final_Project.Repositories.Abstract;
@@ -48,9 +49,13 @@ builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
 builder.Services.AddScoped<IClientsService, ClientsService>();
 builder.Services.AddScoped<IContractsRepository, ContractsRepository>();
 builder.Services.AddScoped<IContractsService, ContractsService>();
+builder.Services.AddScoped<ISoftwareRepository, SoftwareRepository>();
+builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
+builder.Services.AddScoped<IRevenueService, RevenueService>();
+builder.Services.AddScoped<IAccountStatusRepository, AccountStatusRepository>();
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<ApplicationContext>(opt =>
+builder.Services.AddDbContext<IApplicationContext, ApplicationContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
@@ -79,6 +84,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseMiddleware<IndividualClientMiddleware>();
+app.UseMiddleware<ClientMiddleware>();
 app.MapControllers();
 app.Run();

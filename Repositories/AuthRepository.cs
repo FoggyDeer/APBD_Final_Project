@@ -1,12 +1,12 @@
 using APBD_Final_Project.DbContexts;
+using APBD_Final_Project.DbContexts.Abstract;
 using APBD_Final_Project.Entities;
 using APBD_Final_Project.Repositories.Abstract;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace APBD_Final_Project.Repositories;
 
-public class AuthRepository(ApplicationContext context) : IAuthRepository
+public class AuthRepository(IApplicationContext context) : IAuthRepository
 {
     public async Task<User?> GetUserByLogin(string login)
     {

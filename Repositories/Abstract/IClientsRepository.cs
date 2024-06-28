@@ -5,7 +5,6 @@ namespace APBD_Final_Project.Repositories.Abstract;
 
 public interface IClientsRepository
 {
-    Task<bool> IsIndividualClientDeleted(int clientId);
     Task<bool> IsPeselValid(string pesel);
     Task<bool> IsKrsValid(string krs);
     Task<bool> DoesClientExists(int clientId);

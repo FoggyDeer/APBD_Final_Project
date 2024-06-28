@@ -8,6 +8,7 @@ namespace APBD_Final_Project.Entities;
 [PrimaryKey("DiscountId", "SoftwareId")]
 public class Discount
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("DiscountId")]
     public int DiscountId { get; set; }
     

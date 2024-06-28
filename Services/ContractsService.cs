@@ -1,48 +1,53 @@
 using APBD_Final_Project.Entities;
+using APBD_Final_Project.Exceptions.ClientsException;
 using APBD_Final_Project.Exceptions.ContractExceptions;
-using APBD_Final_Project.Exceptions.SoftwareExceptions;
 using APBD_Final_Project.Models.ContractModels;
 using APBD_Final_Project.Repositories.Abstract;
 using APBD_Final_Project.Services.Abstract;
 
 namespace APBD_Final_Project.Services;
 
-public class ContractsService(IContractsRepository repository) : IContractsService
+public class ContractsService(IContractsRepository contractsRepository, ISoftwareRepository softwareRepository) : IContractsService
 {
     public async Task CreateContract(int clientId, CreateContractRequestModel requestModel)
     {
-        if(await repository.DoesClientHasActiveContract(clientId))
+        if(!await contractsRepository.DoesClientExists(clientId))
+            throw new ClientNotFoundException(clientId);
+        
+        if(await contractsRepository.DoesClientHasActiveContract(clientId))
             throw new ActiveContractException();
         
-        if(requestModel.StartDate > requestModel.EndDate || requestModel.StartDate < DateTime.Now)
+        Console.WriteLine(requestModel.StartDate >= requestModel.EndDate);
+        Console.WriteLine(requestModel.StartDate < DateTime.Now);
+        if(requestModel.StartDate >= requestModel.EndDate || requestModel.StartDate < DateTime.Now)
             throw new ContractStartDateException();
         
-        double duration = requestModel.EndDate.Subtract(requestModel.StartDate).TotalDays;
-        if(duration < 3 || duration > 30)
+        double duration = (requestModel.EndDate - requestModel.StartDate).TotalDays;
+        if(duration is < 3 or > 30)
             throw new InvalidPeriodException();
         
-        Software? software = await repository.GetSoftwareById(requestModel.SoftwareId);
-        
-        if(software == null)
-            throw new SoftwareNotFoundException(requestModel.SoftwareId);
+        Software software = await softwareRepository.GetSoftwareById(requestModel.SoftwareId);
 
-        decimal discount = await repository.GetMaxSoftwareDiscount(software.SoftwareId);
+        decimal discount = await contractsRepository.GetMaxSoftwareDiscount(software.SoftwareId);
         
-        bool isLoyal = await repository.CountClientPurchases(clientId) > 1;
+        bool isLoyal = await contractsRepository.CountClientPurchases(clientId) >= 1;
         if(isLoyal)
             discount += 5m;
         
-        decimal annualPrice = await repository.GetSoftwareAnnualPrice(software.SoftwareId);
+        decimal annualPrice = await contractsRepository.GetSoftwareAnnualPrice(software.SoftwareId);
         
         decimal price = annualPrice + 1000 * (requestModel.SupportPeriodYears - 1);
         price -= price * discount / 100;
         
-        await repository.CreateContract(clientId, price, requestModel);
+        await contractsRepository.CreateContract(clientId, price, requestModel);
     }
 
     public async Task CreateInvoice(int contractId, int clientId, CreateInvoiceRequestModel requestModel)
     {
-        Contract? contract = await repository.GetClientsContractById(clientId, contractId);
+        if(!await contractsRepository.DoesClientExists(clientId))
+            throw new ClientNotFoundException(clientId);
+        
+        Contract? contract = await contractsRepository.GetClientsContractById(clientId, contractId);
 
         if(contract == null)
             throw new ContractNotFoundException(contractId);
@@ -53,6 +58,6 @@ public class ContractsService(IContractsRepository repository) : IContractsServi
         if(contract.EndDate < DateTime.Now)
             throw new ContractExpiredException(contractId);
         
-        await repository.CreateInvoice(contractId, clientId, requestModel);
+        await contractsRepository.CreateInvoice(contractId, clientId, requestModel);
     }
 }

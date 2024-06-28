@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using APBD_Final_Project.Exceptions.ClientsException;
 using APBD_Final_Project.Exceptions.ContractExceptions;
 using APBD_Final_Project.Exceptions.SoftwareExceptions;
 using APBD_Final_Project.Models.ContractModels;

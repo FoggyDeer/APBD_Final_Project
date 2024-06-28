@@ -5,7 +5,7 @@ namespace APBD_Final_Project.Repositories.Abstract;
 
 public interface IContractsRepository
 {
-    Task<Software?> GetSoftwareById(int id);
+    Task<bool> DoesClientExists(int clientId);
     Task<decimal> GetMaxSoftwareDiscount(int softwareId);
     Task<int> CountClientPurchases(int clientId);
     Task<decimal> GetSoftwareAnnualPrice(int softwareId);

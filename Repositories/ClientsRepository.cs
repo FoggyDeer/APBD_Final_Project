@@ -1,4 +1,5 @@
 using APBD_Final_Project.DbContexts;
+using APBD_Final_Project.DbContexts.Abstract;
 using APBD_Final_Project.Entities;
 using APBD_Final_Project.Models.ClientModels;
 using APBD_Final_Project.Repositories.Abstract;
@@ -6,16 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APBD_Final_Project.Repositories;
 
-public class ClientsRepository(ApplicationContext context) : IClientsRepository
+public class ClientsRepository(IApplicationContext context) : IClientsRepository
 {
-    public async Task<bool> IsIndividualClientDeleted(int clientId)
-    {
-        IndividualClient? client = await context.IndividualClients
-            .FirstOrDefaultAsync(c => c.IndividualClientId == clientId);
-        
-        return client?.DeletedAt != null;
-    }
-
     public async Task<bool> IsPeselValid(string pesel)
     {
         IndividualClient? client = await context.IndividualClients

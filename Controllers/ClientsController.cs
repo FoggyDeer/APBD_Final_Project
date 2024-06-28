@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using APBD_Final_Project.Exceptions.ClientsException.Corporate;
@@ -32,7 +31,7 @@ public class ClientsController(IClientsService clientsService) : ControllerBase
             await clientsService.AddIndividualClient(userId, requestModel);
             return Created();
         }
-        catch (Exception e) when (e is PeselIsNotValidException or ClientExistsException)
+        catch (Exception e) when (e is PeselIsNotValidException)
         {
             return BadRequest(e.Message);
         }
@@ -85,7 +84,7 @@ public class ClientsController(IClientsService clientsService) : ControllerBase
             await clientsService.AddCorporateClient(userId, requestModel);
             return Created();
         }
-        catch (Exception e) when (e is KrsIsNotValidException or ClientExistsException)
+        catch (Exception e) when (e is KrsIsNotValidException)
         {
             return BadRequest(e.Message);
         }

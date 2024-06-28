@@ -1,4 +1,5 @@
 using APBD_Final_Project.DbContexts;
+using APBD_Final_Project.DbContexts.Abstract;
 using APBD_Final_Project.Entities;
 using APBD_Final_Project.Exceptions.ContractExceptions;
 using APBD_Final_Project.Models.ContractModels;
@@ -7,46 +8,63 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APBD_Final_Project.Repositories;
 
-public class ContractsRepository(ApplicationContext context) : IContractsRepository
+public class ContractsRepository(IApplicationContext context) : IContractsRepository
 {
-    public async Task<Software?> GetSoftwareById(int id)
+    public async Task<bool> DoesClientExists(int clientId)
     {
-        return await context.Software.FirstOrDefaultAsync(s => s.SoftwareId == id);
+        Client? client = await context.Clients
+            .Where(c => c.ClientId == clientId)
+            .FirstOrDefaultAsync();
+        
+        return client != null;
     }
 
     public async Task<decimal> GetMaxSoftwareDiscount(int softwareId)
     {
-        return await context.Software
-            .Where(s => s.SoftwareId == softwareId)
+        Software? software = await context.Software
             .Include(s => s.Discounts)
-            .SelectMany(s => s.Discounts)
+            .Where(s => s.SoftwareId == softwareId)
+            .FirstOrDefaultAsync();
+
+        return software?.Discounts
             .Where(d => d.EndDate > DateTime.Now)
             .Select(d => (decimal?)d.Value)
             .DefaultIfEmpty(0)
-            .MaxAsync(d => d) ?? 0;
+            .Max() ?? 0;
     }
 
     public async Task<int> CountClientPurchases(int clientId)
     {
-        return await context.Clients
+        Client? client = await context.Clients
             .Include(c => c.Contracts)
             .Where(c => c.ClientId == clientId)
-            .SelectMany(c => c.Contracts)
-            .CountAsync(c => c.PaymentSettlementDate != null);
+            .FirstOrDefaultAsync();
+        
+        return client?.Contracts
+            .Count(c => c.PaymentSettlementDate != null) ?? 0;
     }
 
     public async Task<decimal> GetSoftwareAnnualPrice(int softwareId)
     {
-        return await context.Software
-            .Include(e => e.Price)
+        Software? software = await context.Software
+            .Include(s => s.Price)
             .Where(s => s.SoftwareId == softwareId)
-            .Select(s => s.Price.AnnualPrice)
             .FirstOrDefaultAsync();
+        
+        Price? price = software?.Price;
+        
+        return price?.AnnualPrice ?? 0;
     }
 
     public async Task<bool> DoesClientHasActiveContract(int clientId)
     {
-        return await context.Clients.Include(c => c.Contracts).Where(c => c.ClientId == clientId).SelectMany(c => c.Contracts).AnyAsync(c => c.PaymentSettlementDate == null && c.EndDate > DateTime.Now);
+        Client? client = await context.Clients
+            .Include(c => c.Contracts)
+            .Where(c => c.ClientId == clientId)
+            .FirstOrDefaultAsync();
+        
+        return client?.Contracts
+            .Any(c => c.PaymentSettlementDate == null && c.EndDate > DateTime.Now) ?? false;
     }
 
     public async Task CreateContract(int clientId, decimal price, CreateContractRequestModel requestModel)
@@ -66,13 +84,13 @@ public class ContractsRepository(ApplicationContext context) : IContractsReposit
 
     public async Task<Contract?> GetClientsContractById(int clientId,int contractId)
     {
-        return await context.Clients
+        Client? client = await context.Clients
             .Include(c => c.Contracts)
             .Include(c => c.Invoices)
             .Where(c => c.ClientId == clientId)
-            .SelectMany(c => c.Contracts)
-            .Where(c => c.ContractId == contractId)
             .FirstOrDefaultAsync();
+        
+        return client?.Contracts.FirstOrDefault(c => c.ContractId == contractId);
     }
     
     public async Task CreateInvoice(int contractId, int clientId, CreateInvoiceRequestModel requestModel)
@@ -82,7 +100,7 @@ public class ContractsRepository(ApplicationContext context) : IContractsReposit
         if (contract == null)
             throw new ContractNotFoundException(contractId);
         
-        decimal totalInvoicesAmount = contract.Invoices.Sum(i => i.Amount) + requestModel.Amount;
+        decimal totalInvoicesAmount = (contract.Invoices?.Sum(i => i.Amount) ?? 0) + requestModel.Amount;
         
         bool isPaid = totalInvoicesAmount >= contract.Price;
         
